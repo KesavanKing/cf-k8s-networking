@@ -1,0 +1,7 @@
+domain: cloudfoundry.org
+repo: github.com/cf-k8s-networking/routecontroller
+resources:
+- group: apps.cloudfoundry.org
+  kind: Route
+  version: v1alpha1
+version: "2"
