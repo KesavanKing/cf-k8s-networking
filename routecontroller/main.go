@@ -19,7 +19,7 @@ import (
 	"flag"
 	"os"
 
-	appscloudfoundryorgv1alpha1 "github.com/cf-k8s-networking/routecontroller/api/v1alpha1"
+	appsv1alpha1 "github.com/cf-k8s-networking/routecontroller/api/v1alpha1"
 	"github.com/cf-k8s-networking/routecontroller/controllers"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
@@ -37,7 +37,7 @@ var (
 func init() {
 	_ = clientgoscheme.AddToScheme(scheme)
 
-	_ = appscloudfoundryorgv1alpha1.AddToScheme(scheme)
+	_ = appsv1alpha1.AddToScheme(scheme)
 	// +kubebuilder:scaffold:scheme
 }
 

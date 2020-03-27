@@ -17,13 +17,14 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 
+	appsv1alpha1 "github.com/cf-k8s-networking/routecontroller/api/v1alpha1"
+	"github.com/cf-k8s-networking/routecontroller/resourcebuilders"
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	appscloudfoundryorgv1alpha1 "github.com/cf-k8s-networking/routecontroller/api/v1alpha1"
 )
 
 // RouteReconciler reconciles a Route object
@@ -33,20 +34,27 @@ type RouteReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-// +kubebuilder:rbac:groups=apps.cloudfoundry.org.cloudfoundry.org,resources=routes,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=apps.cloudfoundry.org.cloudfoundry.org,resources=routes/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=apps.cloudfoundry.org,resources=routes,verbs=get;list;watch
+// +kubebuilder:rbac:groups=apps.cloudfoundry.org,resources=routes/status,verbs=get;update;patch
 
 func (r *RouteReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	_ = context.Background()
+	ctx := context.Background()
 	_ = r.Log.WithValues("route", req.NamespacedName)
 
 	// your logic here
+	routes := &appsv1alpha1.RouteList{}
+	_ = r.List(ctx, routes)
+	vsb := resourcebuilders.VirtualServiceBuilder{IstioGateways: []string{"foo"}}
+	kresources := vsb.Build(routes)
+	fmt.Printf("%+v", kresources)
+	fmt.Printf("%+v", routes)
+	fmt.Println("DONE LISTING ROUTES!!!!!!!")
 
 	return ctrl.Result{}, nil
 }
 
 func (r *RouteReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&appscloudfoundryorgv1alpha1.Route{}).
+		For(&appsv1alpha1.Route{}).
 		Complete(r)
 }

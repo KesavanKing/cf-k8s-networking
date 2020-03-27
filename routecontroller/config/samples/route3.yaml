@@ -1,0 +1,22 @@
+apiVersion: apps.cloudfoundry.org/v1alpha1
+kind: Route
+metadata:
+  name: route-sample-3
+  namespace: cf-workloads
+  annotations:
+  labels:
+    cloudfoundry.org/name: cc-route-guid
+    cloudfoundry.org/org: cc-org-guid
+    cloudfoundry.org/space: cc-space-guid
+    cloudfoundry.org/domain: cc-domain-guid
+    cloudfoundry.org/route: cc-route-guid
+    cloudfoundry.org/managed-by: cloud_controller
+spec:
+  host: my-app-subdomain
+  path: /
+  url: my-app-subdomain.APPS-DOMAIN/
+  guid: whatever
+  domain:
+    name: APPS-DOMAIN-3
+    internal: false
+  destinations: []

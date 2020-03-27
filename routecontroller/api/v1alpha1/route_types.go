@@ -16,6 +16,8 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"fmt"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -28,13 +30,46 @@ type RouteSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Foo is an example field of Route. Edit Route_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	Host         string             `json:"host"`
+	Path         string             `json:"path,omitempty"`
+	Url          string             `json:"url"`
+	Domain       RouteDomain        `json:"domain"`
+	Destinations []RouteDestination `json:"destinations"`
+}
+
+type RouteDomain struct {
+	Name     string `json:"name"`
+	Internal bool   `json:"internal"`
+}
+
+type RouteDestination struct {
+	Weight   *int              `json:"weight"`
+	Port     *int              `json:"port"`
+	Selector map[string]string `json:"selector"`
+}
+
+func (d RouteDestination) Guid() string {
+	// TODO make this right
+	return "super-cool-dest-guid"
+}
+
+type DestinationApp struct {
+	Guid    string     `json:"guid"`
+	Process AppProcess `json:"process"`
+}
+
+type AppProcess struct {
+	Type string `json:"type"`
 }
 
 // RouteStatus defines the observed state of Route
 type RouteStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	Conditions []Condition `json:"conditions"`
+}
+
+type Condition struct {
+	Type   string `json:"type"`
+	Status bool   `json:"status"`
 }
 
 // +kubebuilder:object:root=true
@@ -59,4 +94,16 @@ type RouteList struct {
 
 func init() {
 	SchemeBuilder.Register(&Route{}, &RouteList{})
+}
+
+func (r Route) Guid() string {
+	// TODO make this right
+	return "super-cool-route-guid"
+}
+
+func (r Route) FQDN() string {
+	if r.Spec.Host == "" {
+		return r.Spec.Domain.Name
+	}
+	return fmt.Sprintf("%s.%s", r.Spec.Host, r.Spec.Domain.Name)
 }
