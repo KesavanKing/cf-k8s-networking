@@ -1,7 +1,7 @@
-apiVersion: apps.cloudfoundry.org/v1alpha1
+apiVersion: networking.cloudfoundry.org/v1alpha1
 kind: Route
 metadata:
-  name: route-sample-3
+  name: no-destination-route-sample
   namespace: cf-workloads
   annotations:
   labels:
@@ -14,9 +14,12 @@ metadata:
 spec:
   host: my-app-subdomain
   path: /
-  url: my-app-subdomain.APPS-DOMAIN/
-  guid: whatever
+  url: my-app-subdomain.APPS-DOMAIN-2/
   domain:
-    name: APPS-DOMAIN-3
+    name: APPS-DOMAIN-2
     internal: false
   destinations: []
+status:
+  conditions:
+    type: Ready
+    status: false

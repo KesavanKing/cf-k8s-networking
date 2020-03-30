@@ -1,4 +1,4 @@
-apiVersion: apps.cloudfoundry.org/v1alpha1
+apiVersion: networking.cloudfoundry.org/v1alpha1
 kind: Route
 metadata:
   name: route-sample
@@ -14,9 +14,9 @@ metadata:
 spec:
   host: my-app-subdomain
   path: /
-  url: my-app-subdomain.APPS-DOMAIN/
+  url: my-app-subdomain.networking-DOMAIN/
   domain:
-    name: APPS-DOMAIN
+    name: networking-DOMAIN
     internal: false
   destinations:
   - weight: 100 # weights must add to 100

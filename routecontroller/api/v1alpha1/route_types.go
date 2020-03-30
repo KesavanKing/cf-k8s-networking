@@ -29,7 +29,6 @@ type RouteSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of Route. Edit Route_types.go to remove/update
 	Host         string             `json:"host"`
 	Path         string             `json:"path,omitempty"`
 	Url          string             `json:"url"`
@@ -73,6 +72,7 @@ type Condition struct {
 }
 
 // +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
 
 // Route is the Schema for the routes API
 type Route struct {
@@ -94,11 +94,6 @@ type RouteList struct {
 
 func init() {
 	SchemeBuilder.Register(&Route{}, &RouteList{})
-}
-
-func (r Route) Guid() string {
-	// TODO make this right
-	return "super-cool-route-guid"
 }
 
 func (r Route) FQDN() string {

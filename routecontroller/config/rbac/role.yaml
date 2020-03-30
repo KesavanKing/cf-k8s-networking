@@ -7,7 +7,7 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
-  - apps.cloudfoundry.org
+  - networking.cloudfoundry.org
   resources:
   - routes
   verbs:
@@ -15,7 +15,7 @@ rules:
   - list
   - watch
 - apiGroups:
-  - apps.cloudfoundry.org
+  - networking.cloudfoundry.org
   resources:
   - routes/status
   verbs:

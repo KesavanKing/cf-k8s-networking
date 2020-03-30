@@ -1,7 +1,7 @@
-apiVersion: apps.cloudfoundry.org/v1alpha1
+apiVersion: networking.cloudfoundry.org/v1alpha1
 kind: Route
 metadata:
-  name: route-sample-2
+  name: destination-route-sample
   namespace: cf-workloads
   annotations:
   labels:
@@ -24,8 +24,12 @@ spec:
     selector:
       cloudfoundry.org/app_guid: cc-app1-guid
       cloudfoundry.org/process_type: web
-  - weight: 60 # weights must add to 100
+  - weight: 40 # weights must add to 100
     port: 8080
     selector:
       cloudfoundry.org/app_guid: cc-app1-guid
       cloudfoundry.org/process_type: web
+status:
+  conditions:
+    type: Ready
+    status: false

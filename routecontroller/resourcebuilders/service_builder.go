@@ -1,4 +1,4 @@
-package resourcebuilders
+package webhook
 
 import (
 	"fmt"

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	appsv1alpha1 "github.com/cf-k8s-networking/routecontroller/api/v1alpha1"
+	networkingv1alpha1 "github.com/cf-k8s-networkying/routecontroller/api/v1alpha1"
 	log "github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -26,7 +26,7 @@ type VirtualServiceBuilder struct {
 	IstioGateways []string
 }
 
-func (b *VirtualServiceBuilder) Build(routes *appsv1alpha1.RouteList) []K8sResource {
+func (b *VirtualServiceBuilder) Build(routes *networkingv1alpha1.RouteList) []K8sResource {
 	resources := []K8sResource{}
 
 	routesForFQDN := groupByFQDN(routes)
@@ -53,7 +53,7 @@ func VirtualServiceName(fqdn string) string {
 	return fmt.Sprintf("vs-%x", sum)
 }
 
-func (b *VirtualServiceBuilder) fqdnToVirtualService(fqdn string, routes []appsv1alpha1.Route) (VirtualService, error) {
+func (b *VirtualServiceBuilder) fqdnToVirtualService(fqdn string, routes []networkingv1alpha1.Route) (VirtualService, error) {
 	vs := VirtualService{
 		ApiVersion: "networking.istio.io/v1alpha3",
 		Kind:       "VirtualService",
@@ -100,15 +100,15 @@ func (b *VirtualServiceBuilder) fqdnToVirtualService(fqdn string, routes []appsv
 	return vs, nil
 }
 
-func validateRoutesForFQDN(routes []appsv1alpha1.Route) error {
+func validateRoutesForFQDN(routes []networkingv1alpha1.Route) error {
 	// We are assuming that internal and external routes cannot share an fqdn
 	// Cloud Controller should validate and prevent this scenario
 	for _, route := range routes {
 		if routes[0].Spec.Domain.Internal != route.Spec.Domain.Internal {
 			msg := fmt.Sprintf(
 				"route guid %s and route guid %s disagree on whether or not the domain is internal",
-				routes[0].Guid(),
-				route.Guid())
+				routes[0].ObjectMeta.Name,
+				route.ObjectMeta.Name)
 			return errors.New(msg)
 		}
 	}
@@ -116,8 +116,8 @@ func validateRoutesForFQDN(routes []appsv1alpha1.Route) error {
 	return nil
 }
 
-func destinationsForFQDN(fqdn string, routesByFQDN map[string][]appsv1alpha1.Route) []appsv1alpha1.RouteDestination {
-	destinations := make([]appsv1alpha1.RouteDestination, 0)
+func destinationsForFQDN(fqdn string, routesByFQDN map[string][]networkingv1alpha1.Route) []networkingv1alpha1.RouteDestination {
+	destinations := make([]networkingv1alpha1.RouteDestination, 0)
 	routes := routesByFQDN[fqdn]
 	for _, route := range routes {
 		destinations = append(destinations, route.Spec.Destinations...)
@@ -125,8 +125,8 @@ func destinationsForFQDN(fqdn string, routesByFQDN map[string][]appsv1alpha1.Rou
 	return destinations
 }
 
-func groupByFQDN(routes *appsv1alpha1.RouteList) map[string][]appsv1alpha1.Route {
-	fqdns := make(map[string][]appsv1alpha1.Route)
+func groupByFQDN(routes *networkingv1alpha1.RouteList) map[string][]networkingv1alpha1.Route {
+	fqdns := make(map[string][]networkingv1alpha1.Route)
 	for _, route := range routes.Items {
 		n := route.FQDN()
 		fqdns[n] = append(fqdns[n], route)
@@ -134,7 +134,7 @@ func groupByFQDN(routes *appsv1alpha1.RouteList) map[string][]appsv1alpha1.Route
 	return fqdns
 }
 
-func sortFQDNs(fqdns map[string][]appsv1alpha1.Route) []string {
+func sortFQDNs(fqdns map[string][]networkingv1alpha1.Route) []string {
 	var fqdnSlice []string
 	for fqdn, _ := range fqdns {
 		fqdnSlice = append(fqdnSlice, fqdn)
@@ -144,7 +144,7 @@ func sortFQDNs(fqdns map[string][]appsv1alpha1.Route) []string {
 	return fqdnSlice
 }
 
-func sortRoutes(routes []appsv1alpha1.Route) {
+func sortRoutes(routes []networkingv1alpha1.Route) {
 	sort.Slice(routes, func(i, j int) bool {
 		return routes[i].Spec.Url > routes[j].Spec.Url
 	})
@@ -158,7 +158,7 @@ func cloneLabels(template map[string]string) map[string]string {
 	return labels
 }
 
-func destinationsToHttpRouteDestinations(route appsv1alpha1.Route, destinations []appsv1alpha1.RouteDestination) ([]HTTPRouteDestination, error) {
+func destinationsToHttpRouteDestinations(route networkingv1alpha1.Route, destinations []networkingv1alpha1.RouteDestination) ([]HTTPRouteDestination, error) {
 	err := validateWeights(route, destinations)
 	if err != nil {
 		return nil, err
@@ -171,7 +171,7 @@ func destinationsToHttpRouteDestinations(route appsv1alpha1.Route, destinations 
 			},
 			Headers: VirtualServiceHeaders{
 				Request: VirtualServiceHeaderOperations{
-					Set: map[string]string{}, // TODO FIX ME: set labels
+					Set: map[string]string{}, // TODO FIX ME: set labels // TODO FIX ME: add back app guid
 				},
 			},
 		}
@@ -195,7 +195,7 @@ func destinationsToHttpRouteDestinations(route appsv1alpha1.Route, destinations 
 	return httpDestinations, nil
 }
 
-func validateWeights(route appsv1alpha1.Route, destinations []appsv1alpha1.RouteDestination) error {
+func validateWeights(route networkingv1alpha1.Route, destinations []networkingv1alpha1.RouteDestination) error {
 	// Cloud Controller validates these scenarios
 	//
 	weightSum := 0
@@ -203,7 +203,7 @@ func validateWeights(route appsv1alpha1.Route, destinations []appsv1alpha1.Route
 		if (d.Weight == nil) != (destinations[0].Weight == nil) {
 			msg := fmt.Sprintf(
 				"invalid destinations for route %s: weights must be set on all or none",
-				route.Guid())
+				route.ObjectMeta.Name)
 			return errors.New(msg)
 		}
 
@@ -216,7 +216,7 @@ func validateWeights(route appsv1alpha1.Route, destinations []appsv1alpha1.Route
 	if weightsHaveBeenSet && weightSum != IstioExpectedWeight {
 		msg := fmt.Sprintf(
 			"invalid destinations for route %s: weights must sum up to 100",
-			route.Guid())
+			route.ObjectMeta.Name)
 		return errors.New(msg)
 	}
 	return nil
@@ -227,6 +227,6 @@ func intPtr(x int) *int {
 }
 
 // service names cannot start with numbers
-func serviceName(dest appsv1alpha1.RouteDestination) string {
+func serviceName(dest networkingv1alpha1.RouteDestination) string {
 	return fmt.Sprintf("s-%s", dest.Guid())
 }
