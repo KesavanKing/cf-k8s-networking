@@ -58,8 +58,9 @@ func (b *VirtualServiceBuilder) fqdnToVirtualService(fqdn string, routes []netwo
 		ApiVersion: "networking.istio.io/v1alpha3",
 		Kind:       "VirtualService",
 		ObjectMeta: metav1.ObjectMeta{
-			Name:   VirtualServiceName(fqdn),
-			Labels: map[string]string{}, // TODO FIXME
+			Name:      VirtualServiceName(fqdn),
+			Namespace: routes[0].ObjectMeta.Namespace,
+			Labels:    map[string]string{},
 			Annotations: map[string]string{
 				"cloudfoundry.org/fqdn": fqdn,
 			},
@@ -101,12 +102,21 @@ func (b *VirtualServiceBuilder) fqdnToVirtualService(fqdn string, routes []netwo
 }
 
 func validateRoutesForFQDN(routes []networkingv1alpha1.Route) error {
-	// We are assuming that internal and external routes cannot share an fqdn
-	// Cloud Controller should validate and prevent this scenario
 	for _, route := range routes {
+		// We are assuming that internal and external routes cannot share an fqdn
+		// Cloud Controller should validate and prevent this scenario
 		if routes[0].Spec.Domain.Internal != route.Spec.Domain.Internal {
 			msg := fmt.Sprintf(
 				"route guid %s and route guid %s disagree on whether or not the domain is internal",
+				routes[0].ObjectMeta.Name,
+				route.ObjectMeta.Name)
+			return errors.New(msg)
+		}
+
+		// Guard against two Routes for the same fqdn belonging to different namespaces
+		if routes[0].ObjectMeta.Namespace != route.ObjectMeta.Namespace {
+			msg := fmt.Sprintf(
+				"route guid %s and route guid %s share the same FQDN but have different namespaces",
 				routes[0].ObjectMeta.Name,
 				route.ObjectMeta.Name)
 			return errors.New(msg)
@@ -185,7 +195,7 @@ func destinationsToHttpRouteDestinations(route networkingv1alpha1.Route, destina
 		}
 		httpDestinations = append(httpDestinations, httpDestination)
 	}
-	if len(destinations) > 1 && destinations[0].Weight == nil {
+	if destinations[0].Weight == nil {
 		n := len(destinations)
 		for i, _ := range httpDestinations {
 			weight := int(IstioExpectedWeight / n)
