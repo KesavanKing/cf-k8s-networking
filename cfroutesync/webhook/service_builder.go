@@ -1,8 +1,6 @@
 package resourcebuilders
 
 import (
-	"fmt"
-
 	"code.cloudfoundry.org/cf-k8s-networking/cfroutesync/models"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -54,7 +52,8 @@ func routeToServices(route models.Route, template Template) []Service {
 	return services
 }
 
+// TODO: This should probably live
 // service names cannot start with numbers
-func serviceName(dest models.Destination) string {
-	return fmt.Sprintf("s-%s", dest.Guid)
-}
+// func serviceName(dest models.Destination) string {
+// 	return fmt.Sprintf("s-%s", dest.Guid)
+// }

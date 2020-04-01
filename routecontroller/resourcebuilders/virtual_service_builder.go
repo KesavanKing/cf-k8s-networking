@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	networkingv1alpha1 "github.com/cf-k8s-networkying/routecontroller/api/v1alpha1"
+	networkingv1alpha1 "github.com/cf-k8s-networking/routecontroller/api/v1alpha1"
 	log "github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -171,7 +171,12 @@ func destinationsToHttpRouteDestinations(route networkingv1alpha1.Route, destina
 			},
 			Headers: VirtualServiceHeaders{
 				Request: VirtualServiceHeaderOperations{
-					Set: map[string]string{}, // TODO FIX ME: set labels // TODO FIX ME: add back app guid
+					Set: map[string]string{
+						"CF-App-Id":           destination.App.Guid,
+						"CF-App-Process-Type": destination.App.Process.Type,
+						"CF-Space-Id":         route.ObjectMeta.Labels["cloudfoundry.org/space_guid"],
+						"CF-Organization-Id":  route.ObjectMeta.Labels["cloudfoundry.org/org_guid"],
+					},
 				},
 			},
 		}
@@ -228,5 +233,5 @@ func intPtr(x int) *int {
 
 // service names cannot start with numbers
 func serviceName(dest networkingv1alpha1.RouteDestination) string {
-	return fmt.Sprintf("s-%s", dest.Guid())
+	return fmt.Sprintf("s-%s", dest.Guid)
 }

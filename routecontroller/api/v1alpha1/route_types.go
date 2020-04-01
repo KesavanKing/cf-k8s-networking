@@ -42,15 +42,17 @@ type RouteDomain struct {
 }
 
 type RouteDestination struct {
+	Guid     string            `json:"guid"`
 	Weight   *int              `json:"weight"`
 	Port     *int              `json:"port"`
+	App      DestinationApp    `json:"app"`
 	Selector map[string]string `json:"selector"`
 }
 
-func (d RouteDestination) Guid() string {
-	// TODO make this right
-	return "super-cool-dest-guid"
-}
+// func (d RouteDestination) Guid() string {
+// 	// TODO make this right
+// 	return "super-cool-dest-guid"
+// }
 
 type DestinationApp struct {
 	Guid    string     `json:"guid"`
