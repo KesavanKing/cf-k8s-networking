@@ -1,4 +1,4 @@
-module github.com/cf-k8s-networking/routecontroller
+module github.com/cloudfoundry/cf-k8s-networking/routecontroller
 
 go 1.13
 
