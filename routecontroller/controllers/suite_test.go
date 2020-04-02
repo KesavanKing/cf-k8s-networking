@@ -22,7 +22,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	appsv1alpha1 "github.com/cf-k8s-networking/routecontroller/api/v1alpha1"
+	appsv1alpha1 "code.cloudfoundry.org/cf-k8s-networking/routecontroller/api/v1alpha1"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"

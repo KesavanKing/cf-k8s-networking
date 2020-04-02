@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	networkingv1alpha1 "github.com/cf-k8s-networking/routecontroller/api/v1alpha1"
+	networkingv1alpha1 "code.cloudfoundry.org/cf-k8s-networking/routecontroller/api/v1alpha1"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -764,7 +764,7 @@ var _ = Describe("VirtualServiceBuilder", func() {
 							},
 							Spec: networkingv1alpha1.RouteSpec{
 								Host: "test1",
-								Path: "/",
+								Path: "",
 								Url:  "test1.domain1.example.com",
 								Domain: networkingv1alpha1.RouteDomain{
 									Name:     "domain1.example.com",
@@ -872,7 +872,7 @@ var _ = Describe("VirtualServiceBuilder", func() {
 							},
 							Spec: networkingv1alpha1.RouteSpec{
 								Host: "test1",
-								Path: "/",
+								Path: "",
 								Url:  "test1.domain1.example.com",
 								Domain: networkingv1alpha1.RouteDomain{
 									Name:     "domain1.example.com",

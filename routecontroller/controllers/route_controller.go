@@ -19,8 +19,8 @@ import (
 	"context"
 	"fmt"
 
-	networkingv1alpha1 "github.com/cf-k8s-networking/routecontroller/api/v1alpha1"
-	"github.com/cf-k8s-networking/routecontroller/resourcebuilders"
+	networkingv1alpha1 "code.cloudfoundry.org/cf-k8s-networking/routecontroller/api/v1alpha1"
+	"code.cloudfoundry.org/cf-k8s-networking/routecontroller/resourcebuilders"
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -43,12 +43,24 @@ func (r *RouteReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	// your logic goes here
 	routes := &networkingv1alpha1.RouteList{}
+
+	// TODO: only act on changes to routes?
+
+	// watch finds a new route or change to a route
+	// find all routes that share that fqdn and reconcile the single Virtual Service for that fqdn
+	// reconcile the many Services for the route that was created/changed
+
 	_ = r.List(ctx, routes)
 	vsb := resourcebuilders.VirtualServiceBuilder{IstioGateways: []string{"foo"}}
-	kresources := vsb.Build(routes)
+	sb := resourcebuilders.ServiceBuilder{}
 
+	virtualservices := vsb.Build(routes)
+	services := sb.Build(routes)
+
+	fmt.Printf("\nPrinting Services!!!!!!!\n")
+	fmt.Printf("%+v", services)
 	fmt.Printf("\nPrinting Virtual Services!!!!!!!\n")
-	fmt.Printf("%+v", kresources)
+	fmt.Printf("%+v", virtualservices)
 	fmt.Printf("\nPrinting Routes!!!!!!!\n")
 	fmt.Printf("%+v", routes)
 	fmt.Println("\nDONE LISTING ROUTES!!!!!!!")

@@ -1,7 +1,7 @@
 package resourcebuilders
 
 import (
-	networkingv1alpha1 "github.com/cf-k8s-networking/routecontroller/api/v1alpha1"
+	networkingv1alpha1 "code.cloudfoundry.org/cf-k8s-networking/routecontroller/api/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

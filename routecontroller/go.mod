@@ -1,9 +1,8 @@
-module github.com/cloudfoundry/cf-k8s-networking/routecontroller
+module code.cloudfoundry.org/cf-k8s-networking/routecontroller
 
 go 1.13
 
 require (
-	code.cloudfoundry.org/cf-k8s-networking/cfroutesync v0.0.0-20200324233156-48bafe018fa6
 	github.com/go-logr/logr v0.1.0
 	github.com/onsi/ginkgo v1.10.1
 	github.com/onsi/gomega v1.7.0

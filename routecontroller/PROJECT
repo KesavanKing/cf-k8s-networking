@@ -1,5 +1,5 @@
 domain: cloudfoundry.org
-repo: github.com/cf-k8s-networking/routecontroller
+repo: code.cloudfoundry.org/cf-k8s-networking/routecontroller
 resources:
 - group: apps
   kind: Route

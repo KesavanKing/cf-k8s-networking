@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	networkingv1alpha1 "github.com/cf-k8s-networking/routecontroller/api/v1alpha1"
+	networkingv1alpha1 "code.cloudfoundry.org/cf-k8s-networking/routecontroller/api/v1alpha1"
 	log "github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 

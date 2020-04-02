@@ -4,7 +4,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	networkingv1alpha1 "github.com/cf-k8s-networking/routecontroller/api/v1alpha1"
+	networkingv1alpha1 "code.cloudfoundry.org/cf-k8s-networking/routecontroller/api/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -137,16 +137,6 @@ var _ = Describe("ServiceBuilder", func() {
 		},
 		}
 
-		// networkingv1alpha1.RouteDestination{
-		// 	Guid:   "route-0-destination-guid-0",
-		// 	Port:   intPtr(9000),
-		// 	Weight: intPtr(91),
-		// 	// TODO: Selector:
-		// 	App: networkingv1alpha1.DestinationApp{
-		// 		Guid:    "app-guid-0",
-		// 		Process: networkingv1alpha1.AppProcess{Type: "process-type-1"},
-		// 	},
-		// },
 		expectedServices := []K8sResource{
 			Service{
 				ApiVersion: "v1",

@@ -5,6 +5,7 @@ cloud.google.com/go v0.38.0/go.mod h1:990N+gfupTy94rShfmMCWGDn0LpTmnzTp2qbd1dvSR
 code.cloudfoundry.org/bbs v0.0.0-20190927143358-c8e9aacab090 h1:kVYh5zYYUg+Bm/wTejzjlS85ExuxTmvm2dcrSTagBS8=
 code.cloudfoundry.org/bbs v0.0.0-20190927143358-c8e9aacab090/go.mod h1:XKlGVVXFi5EcHHMPzw3xgONK9PeEZuUbIC43XNwxD10=
 code.cloudfoundry.org/cf-k8s-networking v0.0.0-20200324233156-48bafe018fa6 h1:scbL7xKr/vFBEKb5XJceKy/JcDZNknqxwNunJtsOIxU=
+code.cloudfoundry.org/cf-k8s-networking v0.0.0-20200327190412-867012b7a329 h1:GjSXWxHTbfjqEh7I2nTnloUnucLMS35a3A2pfl0n6CU=
 code.cloudfoundry.org/cf-k8s-networking/cfroutesync v0.0.0-20200324233156-48bafe018fa6 h1:6mrfXkPxMISfRI/aIbCxN9Yb0iix/rrExV3L57ZHJXA=
 code.cloudfoundry.org/cf-k8s-networking/cfroutesync v0.0.0-20200324233156-48bafe018fa6/go.mod h1:HSc7SM6q0ni0muv5YO33JqsXh/ZJ11nDjc0MCwWeAZY=
 code.cloudfoundry.org/cf-networking-helpers v0.0.0-20190910191404-18f76a93195d h1:G8mAI2EJVyHMnsC2D/hCWyVH3xMtNvZmDEae2QBJE3Q=

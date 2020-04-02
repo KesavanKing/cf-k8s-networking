@@ -19,8 +19,8 @@ import (
 	"flag"
 	"os"
 
-	appsv1alpha1 "github.com/cf-k8s-networking/routecontroller/api/v1alpha1"
-	"github.com/cf-k8s-networking/routecontroller/controllers"
+	appsv1alpha1 "code.cloudfoundry.org/cf-k8s-networking/routecontroller/api/v1alpha1"
+	"code.cloudfoundry.org/cf-k8s-networking/routecontroller/controllers"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
