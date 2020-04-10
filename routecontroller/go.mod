@@ -8,6 +8,7 @@ require (
 	github.com/onsi/gomega v1.7.0
 	github.com/sirupsen/logrus v1.4.2
 	istio.io/api v0.0.0-20200409210158-852f8fa8e3f4 // indirect
+	k8s.io/api v0.17.0
 	k8s.io/apimachinery v0.17.0
 	k8s.io/client-go v0.0.0-20191014070654-bd505ee787b2
 	k8s.io/cluster-registry v0.0.6

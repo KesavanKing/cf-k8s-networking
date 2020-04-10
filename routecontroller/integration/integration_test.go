@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"math/rand"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -14,6 +15,10 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
 	"sigs.k8s.io/kind/pkg/cluster"
 )
 
@@ -24,20 +29,29 @@ var _ = Describe("Integration", func() {
 		clusterName    string
 		kubeConfigPath string
 		namespace      string
+		clientset      kubernetes.Interface
 	)
 
 	BeforeEach(func() {
-		// TODO Make a unique name
-		clusterName = fmt.Sprintf("master-routing-integration-test-%d", GinkgoParallelNode()) // TODO rename
+		clusterName = fmt.Sprintf("test-%d-%d", GinkgoParallelNode(), rand.Uint64()) // TODO rename
 		namespace = "cf-k8s-networking-tests"
 
 		kubeConfigPath = createKindCluster(clusterName)
+		config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
+		Expect(err).NotTo(HaveOccurred())
 
-		output, err := kubectlWithConfig(kubeConfigPath, nil, "create", "namespace", namespace)
-		Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("kubectl create namespace failed with err: %s", string(output)))
+		clientset, err = kubernetes.NewForConfig(config)
+		Expect(err).NotTo(HaveOccurred())
+
+		_, err = clientset.CoreV1().Namespaces().Create(&corev1.Namespace{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: namespace,
+			},
+		})
+		Expect(err).NotTo(HaveOccurred())
 
 		istioCRDPath := filepath.Join("fixtures", "istio-virtual-service.yaml")
-		output, err = kubectlWithConfig(kubeConfigPath, nil, "-n", namespace, "apply", "-f", istioCRDPath)
+		output, err := kubectlWithConfig(kubeConfigPath, nil, "-n", namespace, "apply", "-f", istioCRDPath)
 		Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("kubectl apply crd failed with err: %s", string(output)))
 
 		// Generate the YAML for the Route CRD with Kustomize, and then apply it with kubectl apply.
