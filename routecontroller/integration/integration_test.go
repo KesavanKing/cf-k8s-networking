@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	. "github.com/onsi/ginkgo"
@@ -26,6 +27,7 @@ var _ = Describe("Integration", func() {
 	)
 
 	BeforeEach(func() {
+		// TODO Make a unique name
 		clusterName = fmt.Sprintf("master-routing-integration-test-%d", GinkgoParallelNode()) // TODO rename
 		namespace = "cf-k8s-networking-tests"
 
@@ -34,6 +36,10 @@ var _ = Describe("Integration", func() {
 		output, err := kubectlWithConfig(kubeConfigPath, nil, "create", "namespace", namespace)
 		Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("kubectl create namespace failed with err: %s", string(output)))
 
+		istioCRDPath := filepath.Join("fixtures", "istio-virtual-service.yaml")
+		output, err = kubectlWithConfig(kubeConfigPath, nil, "-n", namespace, "apply", "-f", istioCRDPath)
+		Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("kubectl apply crd failed with err: %s", string(output)))
+
 		// Generate the YAML for the Route CRD with Kustomize, and then apply it with kubectl apply.
 		kustomizeOutput, err := kustomizeConfigCRD()
 		Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("kustomize failed to render CRD yaml: %s", string(kustomizeOutput)))
@@ -41,8 +47,6 @@ var _ = Describe("Integration", func() {
 
 		output, err = kubectlWithConfig(kubeConfigPath, kustomizeOutputReader, "-n", namespace, "apply", "-f", "-")
 		Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("kubectl apply crd failed with err: %s", string(output)))
-
-		// TODO? : add virtualservice CRD. Others?
 
 		session = startRouteController(kubeConfigPath, namespace)
 	})
@@ -54,11 +58,44 @@ var _ = Describe("Integration", func() {
 		deleteKindCluster(clusterName, kubeConfigPath)
 	})
 
-	It("successfully creates the Route CRD", func() {
+	It("successfully creates the Route and VirtualService CRDs", func() {
 		output, err := kubectlWithConfig(kubeConfigPath, nil, "get", "crds")
 		Expect(err).NotTo(HaveOccurred())
 
 		Expect(string(output)).To(ContainSubstring("routes.networking.cloudfoundry.org"))
+		Expect(string(output)).To(ContainSubstring("virtualservices.networking.istio.io"))
+
+		routeCRYaml := filepath.Join("fixtures", "route.yaml")
+		output, err = kubectlWithConfig(kubeConfigPath, nil, "-n", namespace, "apply", "-f", routeCRYaml)
+		Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("kubectl apply CR failed with err: %s", string(output)))
+	})
+
+	When("there is no destination provided in the route CR", func() {
+		BeforeEach(func() {
+			routeCRYaml := filepath.Join("fixtures", "route-without-any-destination.yaml")
+			output, err := kubectlWithConfig(kubeConfigPath, nil, "-n", namespace, "apply", "-f", routeCRYaml)
+			Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("kubectl apply CR failed with err: %s", string(output)))
+		})
+
+		It("does not create a virtualservice", func() {
+			output, err := kubectlWithConfig(kubeConfigPath, nil, "get", "virtualservices")
+			Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("kubectl get virtualservices failed: %s", string(output)))
+			Expect(string(output)).To(ContainSubstring("")) // Stop shelling out to kubectl, use library code
+		})
+	})
+
+	When("there is a single route CR with a single destination", func() {
+		BeforeEach(func() {
+			routeCRYaml := filepath.Join("fixtures", "single-route-with-single-destination.yaml")
+			output, err := kubectlWithConfig(kubeConfigPath, nil, "-n", namespace, "apply", "-f", routeCRYaml)
+			Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("kubectl apply CR failed with err: %s", string(output)))
+		})
+
+		It("creates a virtualservice and a service", func() {
+			output, err := kubectlWithConfig(kubeConfigPath, nil, "get", "virtualservices")
+			Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("kubectl get virtualservices failed: %s", string(output)))
+			Expect(string(output)).To(ContainSubstring("")) // Stop shelling out to kubectl, use library code
+		})
 	})
 })
 
